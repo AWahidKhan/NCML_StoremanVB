@@ -1,0 +1,13 @@
+
+
+
+
+ Deposit 
+
+  1. Add detail in GSL 
+  2. In Data 
+  3. validation of All grid data
+  4. Edit mode 
+  5. delete mode
+  6. printing 
+ 

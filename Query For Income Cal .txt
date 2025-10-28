@@ -1,0 +1,175 @@
+--Query For Total Income From Income Table
+
+
+Select * from  Txn_incomedetails Where LocationID = 
+Select Distinct(LocationID) ,Sum(AmtInclOfSerTax) From Txn_IncomeDetails Group By LocationID 
+Select Distinct(LocationID) ,Sum(AmtInclOfSerTax) From Txn_IncomeDetails Where BillingMonthStartDate = '2009-04-01' And BillingMonthEndDate = '2009-04-30'  Group By LocationID 
+Select Distinct(LocationID) ,Sum(AmtInclOfSerTax) From Txn_IncomeDetails Where BillingMonthStartDate = '2009-05-01' And BillingMonthEndDate = '2009-05-31'  Group By LocationID 
+Select Distinct(LocationID) ,Sum(AmtInclOfSerTax) From Txn_IncomeDetails Where BillingMonthStartDate = '2009-06-01' And BillingMonthEndDate = '2009-06-30'  Group By LocationID 
+Select Distinct(LocationID) ,Sum(AmtInclOfSerTax) From Txn_IncomeDetails Where BillingMonthStartDate = '2009-07-01' And BillingMonthEndDate = '2009-07-31'  Group By LocationID 
+Select Distinct(LocationID) ,Sum(AmtInclOfSerTax) From Txn_IncomeDetails Where BillingMonthStartDate = '2009-08-01' And BillingMonthEndDate = '2009-08-31'  Group By LocationID 
+
+
+
+--Query with Location Name Filter
+
+Select ML.LocationName ,Sum(TI.AmtInclOfSerTax) As TotalIncome From Txn_IncomeDetails TI 
+Right Outer Join Mst_Location ML On TI.LocationID = ML.LocationID 
+Where LocationName = 'Mumbai'  
+Group By LocationName
+
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+--Query For Total Claim From CLaim Submission
+
+Select ME.EmployeeID,ME.EmployeeNo + '~' + ME.EmployeeName as Employee,ME.AllocateExpense,MD.Designation, Sum(TCS.Amount) As TotalExpenseAmount 
+From Txn_ClaimSubmission TCS 
+Inner Join Mst_Employee ME On TCS.EmployeeID = ME.EmployeeID
+Inner Join Mst_Designation MD On ME.DesignationID = MD.DesignationID 
+Where MD.Designation = 'Managment' 
+Group By ME.EmployeeID,ME.EmployeeNo,ME.EmployeeName,ME.AllocateExpense,MD.Designation
+
+
+--24102009 with Location Filter
+Select ME.EmployeeID,ME.EmployeeNo + '~' + ME.EmployeeName as Employee,MD.Designation, Sum(TCS.Amount) As TotalExpenseAmount, 
+ME.AllocateExpense
+From Txn_ClaimSubmission TCS 
+Inner Join Mst_Employee ME On TCS.EmployeeID = ME.EmployeeID
+Inner Join Mst_Designation MD On ME.DesignationID = MD.DesignationID 
+Inner Join Mst_Location ML On TCS.LocationID = ML.LocationID
+Where MD.Designation = 'Managment' And ML.LocationName = 'Ratlam' 
+Group By ME.EmployeeID,ME.EmployeeNo,ME.EmployeeName,ML.LocationName,ME.AllocateExpense,MD.Designation
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+--Query For Total No. Of Location Connected To Particular RM/AM/DRC/CMPM)
+
+Select ECM.LocationID,ML.LocationName 
+From Mst_EMPCMPMapping ECM  
+Right Outer Join Mst_Employee EMP On ECM.EmployeeID = EMP.EMployeeID  
+Left Outer Join Mst_Employee EMP1 On EMP.DirectReportingTo = EMP1.EmployeeID  
+Left Outer Join Mst_Employee EMP2 On EMP1.DirectReportingTo = EMP2.EmployeeID  
+Left Outer Join Mst_Employee EMP3 On EMP2.DirectReportingTo = EMP3.EmployeeID  
+Left Outer Join Mst_Employee EMP4 On EMP3.DirectReportingTo = EMP4.EmployeeID  
+Left Outer Join Mst_Employee EMP6 On EMP.ConnectedToRAG = EMP6.EmployeeID  
+Inner Join Mst_Location ML On ECM.LocationID = ML.LocationID  
+Where (EMP.EmployeeID = 1 Or EMP1.EmployeeID = 1 Or EMP2.EmployeeID = 1 Or  EMP3.EmployeeID = 1  Or EMP4.EmployeeID = 1  Or EMP6.EmployeeID = 1 )
+And ECM.CMPID is not Null
+Group By ECM.LocationID,ML.LocationName
+Order By ECM.LocationID
+
+
+-23102009
+Select ML.LocationName,ECM.EmployeeID,MD.Designation,EMP.EmployeeNo,EMP.EmployeeName,EMP1.EmployeeNo,EMP1.EmployeeName,
+EMP2.EmployeeNo,EMP2.EmployeeName,EMP3.EmployeeNo,EMP3.EmployeeName,EMP4.EmployeeNo,EMP4.EmployeeName, 
+EMP6.EmployeeNo,EMP6.EmployeeName
+From Mst_EMPCMPMapping ECM  
+Right Outer Join Mst_Employee EMP On ECM.EmployeeID = EMP.EMployeeID  
+Left Outer Join Mst_Employee EMP1 On EMP.DirectReportingTo = EMP1.EmployeeID  
+Left Outer Join Mst_Employee EMP2 On EMP1.DirectReportingTo = EMP2.EmployeeID  
+Left Outer Join Mst_Employee EMP3 On EMP2.DirectReportingTo = EMP3.EmployeeID  
+Left Outer Join Mst_Employee EMP4 On EMP3.DirectReportingTo = EMP4.EmployeeID  
+Left Outer Join Mst_Employee EMP6 On EMP.ConnectedToRAG = EMP6.EmployeeID  
+Inner Join Mst_Location ML On ECM.LocationID = ML.LocationID  
+--Where (EMP.EmployeeID = 1 Or EMP1.EmployeeID = 1 Or EMP2.EmployeeID = 1 Or  EMP3.EmployeeID = 1  Or EMP4.EmployeeID = 1  Or EMP6.EmployeeID = 1 )
+--Where ML.LocationName = 'Abohar'And ECM.CMPID is not Null
+Group By ECM.LocationID,ML.LocationName,ECM.EmployeeID,EMP.EmployeeNo,EMP.EmployeeName,EMP1.EmployeeNo,EMP1.EmployeeName,
+EMP2.EmployeeNo,EMP2.EmployeeName,EMP3.EmployeeNo,EMP3.EmployeeName,EMP4.EmployeeNo,EMP4.EmployeeName, 
+EMP6.EmployeeNo,EMP6.EmployeeName
+Order By ML.LocationName
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------
+
+--Query For Total Capacity Of Location  
+---- Without Date & Location Filter
+Select ML.LocationName,Sum(MG.GodownCapacity) as TotalLocationCapacity From Mst_Godown MG 
+Inner Join Mst_CMP MC On MG.CMPID = MC.CMPID
+Inner Join Mst_Location ML On MC.LocationID = ML.LocationID
+--Where ML.LocationName = 'Jaipur'
+Group By ML.LocationName
+
+
+---- With Date & Location Filter (Godown Wise)
+Select ML.LocationName,MG.GodownCapacity From Mst_Godown MG 
+Inner Join Mst_CMP MC On MG.CMPID = MC.CMPID
+Inner Join Mst_Location ML On MC.LocationID = ML.LocationID
+Where ((MG.StartDate <= '2009-08-21' and (MG.CloseDate >= '2009-07-30' Or MG.CloseDate Is Null)) And  ML.LocationName = 'Jaipur')
+
+----- With Date & Location Filter (Total of Godown Wise)
+Select ML.LocationName,Sum(MG.GodownCapacity) as TotalCapacity From Mst_Godown MG 
+Inner Join Mst_CMP MC On MG.CMPID = MC.CMPID
+Inner Join Mst_Location ML On MC.LocationID = ML.LocationID
+Where ((MG.StartDate <= '2009-12-21' and (MG.CloseDate >= '2008-07-30' Or MG.CloseDate Is Null)) And  ML.LocationName = 'Jaipur')
+Group By ML.LocationName
+
+
+--------------------------------------------------------------
+
+--Break Up Of (*/#) For RM/AM/DRC/CMPM
+
+------------Query For Employee List which are in Store-Man but Not in Employee CTC List
+
+---------------Without filter
+Select * from Mst_Employee Where EmployeeNo Not In (Select EmployeeCode From Txn_EmpCTC) Order By EmployeeNo
+
+---------------With Designation Filter
+Select MD.Designation,ME.EmployeeID,ME.EmployeeNo,ME.EmployeeName from Mst_Employee ME
+Inner Join Mst_Designation MD On ME.DesignationID = MD.DesignationID
+Where EmployeeNo Not In (Select EmployeeCode From Txn_EmpCTC) And 
+(MD.Designation = 'RM' Or MD.Designation = 'AM' Or MD.Designation = 'DRC' Or MD.Designation = 'CMPM' Or MD.Designation = 'RAG')
+Order By EmployeeNo 
+
+
+--*Salary Details
+
+----------Query For Employee CTC Details of Employees which are in both tables  
+---------------Without filter
+Select EmployeeCode,CTC_Yearly from Txn_EmpCTC Where EmployeeCode In (Select EmployeeNo From Mst_Employee ) Order By EmployeeCode
+
+---------------With EmployeeCode Filter
+Select EmployeeCode,CTC_Yearly from Txn_EmpCTC Where EmployeeCode In (Select EmployeeNo From Mst_Employee ) And EmployeeCode = '1005' Order By EmployeeCode
+
+
+--#Telephone Details
+
+------------Query For Employee List which are in Store-Man but Not in Telephone List
+
+---------------Without filter
+Select * from Mst_Employee Where EmployeeNo Not In (Select EmpNo From Txn_TelephoneDetails) Order By EmployeeNo
+
+---------------With Designation Filter
+Select MD.Designation,ME.EmployeeID,ME.EmployeeNo,ME.EmployeeName from Mst_Employee ME
+Inner Join Mst_Designation MD On ME.DesignationID = MD.DesignationID
+Where EmployeeNo Not In (Select EmpNo From Txn_TelephoneDetails) And 
+(MD.Designation = 'RM' Or MD.Designation = 'AM' Or MD.Designation = 'DRC' Or MD.Designation = 'CMPM' Or MD.Designation = 'RAG')
+Order By ME.EmployeeNo
+
+
+----------Query For Telephone Details of Employees which are in both tables  
+---------------Without filter
+Select BillMonthYear, EmpNo,MonthlyBillAmt,Excess,NCMSLBillAmt 
+From Txn_TelephoneDetails 
+Where EmpNo In (Select EmployeeNo From Mst_Employee ) Order By EmpNo
+
+
+
+
+---------------With EmpNo Filter
+Select BillMonthYear, EmpNo,MonthlyBillAmt,Excess,NCMSLBillAmt
+From Txn_TelephoneDetails 
+Where EmpNo In (Select EmployeeNo From Mst_Employee ) And EmpNo = '1005' Order By EmpNo
+
+
+
+--------------------------------------------------------------
+
+--Fix Corporate Expense Allocation
+
+
+
+
+

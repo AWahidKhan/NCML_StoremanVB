@@ -1,0 +1,70 @@
+--------Code For Novel Version 
+
+Public Function Version33()
+
+Dim TextType, c As Variant
+If Gen_DBType = "MDB" Then
+   TextType = "Text"
+   c = " COLUMN "
+Else
+   TextType = "Varchar"
+   c = " "
+End If
+
+tmp = "Alter Table Txn_IncomeDetails Add " & c & " OldPINo " & TextType & "(30), NewPINo decimal(18,0),ExchangeTypeID decimal(18,0)"
+Call TmpTable
+
+tmp = "Alter Table Mst_Config add " & c & " IncomeStartDate DateTime"
+Call TmpTable
+
+tmp = "Update Mst_Config set IncomeStartDate = '10/01/2009'"
+Call TmpTable
+
+tmp = "INSERT INTO Mst_MenuDetail ([MenuID], [FormFileName], [MenuName], [FormName], [Flag], [HMenuFlag], [CreatedBy], [CreatedDate], [UpdatedDate], [UpdatedBy], [G_UID])"
+tmp = tmp & " VALUES(85, 'FrmTxn_IncomeDetails.frm', 'Income Details', 'FrmTxn_IncomeDetails', 'Y', 'T',NULL,NULL,NULL,NULL,NULL ) "
+Call TmpTable
+
+
+UpdateConfig ("33")
+MsgBox "Version 33 Installed successfully"
+
+End Function
+
+
+
+----------------
+---Code For Control Bind Module
+Public Function GetClientIDRowByNameAndExchange(CID_ As Variant, Exg_ As Double) As Variant
+Dim RetVal As String
+RetVal = 0
+Call TableMst_Client(" Where ClientName = '" & CID_ & "' And ExchangeTypeID = " & Exg_ & " ")
+If Not RsMst_Client.EOF Then
+   RetVal = RsMst_Client!ClientIDRow
+End If
+GetClientIDRowByNameAndExchange = RetVal
+End Function
+
+
+---------------------
+---Code For Module1
+Public Function GetEndDate(mMonth_ As Variant, mStartdate_ As Variant)
+Dim RetVal As Variant
+
+If mMonth_ = 1 Or mMonth_ = 3 Or mMonth_ = 5 Or mMonth_ = 7 Or mMonth_ = 8 Or mMonth_ = 10 Or mMonth_ = 12 Then
+   RetVal = DateAdd("D", 31, mStartdate_)
+ElseIf mMonth_ = 4 Or mMonth_ = 6 Or mMonth_ = 9 Or mMonth_ = 11 Then
+   RetVal = DateAdd("D", 30, mStartdate_)
+ElseIf mMonth_ = 2 Then
+   If (Year(mStartdate_) Mod 4) = 0 Then
+      RetVal = DateAdd("D", 29, mStartdate_)
+   Else
+      RetVal = DateAdd("D", 28, mStartdate_)
+   End If
+End If
+
+GetEndDate = RetVal - 1
+
+End Function
+
+
+

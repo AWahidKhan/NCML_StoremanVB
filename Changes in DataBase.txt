@@ -1,0 +1,6 @@
+Changes In DataBase
+
+
+1) DataType Of ISINID in ISIN Master (Numeric to Text)
+2) DataType OF ISINID in RRN Master(Numeric to Text)
+3) Field Size of Storage As Per in Mst_Storage Contract (2 old , 20 new)

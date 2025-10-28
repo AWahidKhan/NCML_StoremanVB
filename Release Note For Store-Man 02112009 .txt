@@ -1,0 +1,227 @@
+------Code For Novel Version
+Public Function Version31()
+
+Dim TextType, c As Variant
+If Gen_DBType = "MDB" Then
+   TextType = "Text"
+   c = " COLUMN "
+Else
+   TextType = "Varchar"
+   c = " "
+End If
+
+
+tmp="CREATE TABLE Mst_Vendor ("
+tmp=tmp & " VendorID decimal(18, 0) NOT NULL ,"
+tmp=tmp & " VendorName " & TextType & " (100) NOT NULL ,"
+tmp=tmp & " VendorAddress " & TextType & " (255)  NULL ,"
+tmp=tmp & " LocationID Decimal(18, 0) NOT NULL ,"
+tmp=tmp & " ContactNo " & TextType & "(100)  NULL ,"
+tmp=tmp & " MobileNo " & TextType & "(100) NULL ,"
+tmp=tmp & " Fax " & TextType & "(100)  NULL ,"
+tmp=tmp & " EmailID " & TextType & " (50)  NULL ,"
+tmp=tmp & " TDSID Decimal(18, 0) Not NULL ,"
+tmp=tmp & " Flag " & TextType & " (1)  NULL ,"
+tmp=tmp & " G_UID " & TextType & " (36)  NULL ,"
+tmp=tmp & " Concurrency datetime NOT NULL ,"
+tmp=tmp & " CreatedBy " & TextType & " (30)  NULL ,"
+tmp=tmp & " CreatedDate datetime NULL ,"
+tmp=tmp & " UpdatedDate datetime NULL ,"
+tmp=tmp & " UpdatedBy " & TextType & " (30)  NULL )"
+
+Call TmpTable
+
+tmp= "CREATE TABLE Mst_ServiceTax ("
+tmp= tmp & " ServiceTaxID numeric(18, 0) NOT NULL ,"
+tmp= tmp & " Description " & TextType & " (200)  NOT NULL ,"
+tmp= tmp & " NavCode " & TextType & " (25)  NULL ,"
+tmp= tmp & " Flag " & TextType & " (25)  NULL ,"
+tmp= tmp & " G_UID " & TextType & " (36)  NULL ,"
+tmp= tmp & " Concurrency datetime NOT NULL ,"
+tmp= tmp & " CreatedBy varchar (30)  NULL ,"
+tmp= tmp & " CreatedDate datetime NULL ,"
+tmp= tmp & " UpdatedDate datetime NULL ,"
+tmp= tmp & " UpdatedBy " & TextType & " (30)  NULL )"
+
+Call tmpTable
+
+tmp="CREATE TABLE Mst_TDS ("
+tmp=tmp & " TDSID numeric(18, 0) NOT NULL ,"
+tmp=tmp & " Description " & TextType & " (200) NOT NULL,"
+tmp=tmp & " NavCode " & TextType & " (25) NULL ,"
+tmp=tmp & " G_UID " & TextType & " (36) NULL ,"
+tmp=tmp & " Flag " & TextType & " (25)  NULL ,"
+tmp=tmp & " Concurrency datetime NOT NULL ,"
+tmp=tmp & " CreatedBy " & TextType & " (30) NULL ,"
+tmp=tmp & " CreatedDate datetime NULL ,"
+tmp=tmp & " UpdatedDate datetime NULL ,"
+tmp=tmp & " UpdatedBy " & TextType & " (30) NULL)" 
+
+Call TmpTable
+
+If Gen_DBType <> "MDB" Then
+
+   tmp= "ALTER TABLE Mst_Vendor WITH NOCHECK ADD" 
+   tmp=tmp & " CONSTRAINT PK_Mst_Vendor PRIMARY KEY  CLUSTERED "
+   tmp=tmp & " 	( VendorID )"  
+
+   Call TmpTable
+
+   tmp="ALTER TABLE Mst_Vendor ADD "
+   tmp=tmp & " CONSTRAINT DF_Mst_Vendor_Concurrency DEFAULT (getdate()) FOR Concurrency"
+
+   Call TmpTable
+
+   tmp="ALTER TABLE Mst_Vendor ADD "
+   tmp=tmp & " CONSTRAINT FK_Mst_Vendor_Mst_TDS FOREIGN KEY "
+   tmp=tmp & " ( TDSID ) REFERENCES dbo.Mst_TDS ( TDSID )"
+
+   Call TmpTable
+
+   tmp="ALTER TABLE Mst_TDS WITH NOCHECK ADD "
+   tmp=tmp & " CONSTRAINT PK_Mst_TDS PRIMARY KEY  CLUSTERED "
+   tmp=tmp & " (  TDSID 	)   "
+
+   Call TmpTable
+
+   tmp="ALTER TABLE Mst_TDS ADD "
+   tmp=tmp & " CONSTRAINT DF_Mst_TDS_Concurrency DEFAULT (getdate()) FOR Concurrency"
+
+   Call Tmptable
+   
+   tmp="ALTER TABLE dbo.Mst_ServiceTax WITH NOCHECK ADD "
+   tmp= tmp & " CONSTRAINT PK_Mst_ServiceTax PRIMARY KEY  CLUSTERED "
+   tmp= tmp & " ( 	ServiceTaxID 	)  "
+
+   Call TmpTable
+
+   tmp="ALTER TABLE dbo.Mst_ServiceTax ADD "
+   tmp= tmp & " CONSTRAINT DF_Mst_ServiceTax_Concurrency DEFAULT (getdate()) FOR Concurrency"
+
+   Call Table
+   
+   tmp="Alter Table Mst_ExpenseType add " & c & " ServiceTaxID Numeric(18, 0)"
+
+   Call Tmptable
+
+   tmp="Alter Table Txn_ClaimSubmission add " & c & " BatchID Numeric(18,0)"
+
+   Call TmpTable
+
+   tmp="ALTER TABLE dbo.Mst_ExpenseType ADD "
+   tmp=tmp & " CONSTRAINT FK_Mst_ExpenseType_Mst_ExpenseGroup FOREIGN KEY "
+   tmp=tmp & " (ExpenseGroupID  ) REFERENCES dbo.Mst_ExpenseGroup ( ExpenseGroupID ),"
+   tmp=tmp & " CONSTRAINT FK_Mst_ExpenseType_Mst_ServiceTax FOREIGN KEY "
+   tmp=tmp & " (ServiceTaxID ) REFERENCES dbo.Mst_ServiceTax ( ServiceTaxID )"
+
+   Call TmpTable
+
+End If
+
+
+
+tmp="INSERT INTO Mst_MenuDetail ([MenuID], [FormFileName], [MenuName], [FormName], [Flag], [HMenuFlag], [CreatedBy], [CreatedDate], [UpdatedDate], [UpdatedBy], [G_UID])"
+tmp=tmp & " VALUES(80, 'FrmMst_Vendor.frm', 'Vendor', 'FrmMst_Vendor', 'Y', 'M',NULL,NULL,NULL,NULL,NULL ) "
+
+Call TmpTable
+
+tmp="INSERT INTO Mst_MenuDetail ([MenuID], [FormFileName], [MenuName], [FormName], [Flag], [HMenuFlag], [CreatedBy], [CreatedDate], [UpdatedDate], [UpdatedBy], [G_UID])"
+tmp=tmp & "VALUES(81, 'FrmMst_ServiceTax.frm', 'Service Tax', 'FrmMst_ServiceTax', 'Y', 'M',NULL,NULL,NULL,NULL,NULL ) "
+
+Call TmpTable
+
+
+tmp="INSERT INTO Mst_MenuDetail ([MenuID], [FormFileName], [MenuName], [FormName], [Flag], [HMenuFlag], [CreatedBy], [CreatedDate], [UpdatedDate], [UpdatedBy], [G_UID])"
+tmp=tmp & "VALUES(82, 'FrmMst_TDS.frm', 'TDS', 'FrmMst_TDS', 'Y', 'M',NULL,NULL,NULL,NULL,NULL ) "
+
+Call tmpTable
+
+tmp="INSERT INTO Mst_MenuDetail ([MenuID], [FormFileName], [MenuName], [FormName], [Flag], [HMenuFlag], [CreatedBy], [CreatedDate], [UpdatedDate], [UpdatedBy], [G_UID])"
+tmp=tmp & "VALUES(83, 'FrmNAVExport.frm', 'NAV Export', 'FrmNAVExport', 'Y', 'C',NULL,NULL,NULL,NULL,NULL ) "
+
+Call tmpTable
+
+
+UpdateConfig ("31")
+MsgBox "Version 31 Installed successfully"
+
+End Function
+
+
+
+
+--------Function for Table Module 
+--Declaration
+Public RsMst_Vendor As Recordset
+Public RsMst_ServiceTax As Recordset
+Public RsMst_TDS As Recordset
+
+---Function
+Function TableMst_Vendor(Optional wc As String)
+sql = "Select * from Mst_Vendor " & wc
+Set RsMst_Vendor = New ADODB.Recordset
+RsMst_Vendor.CursorLocation = adUseClient
+Call DBC
+If Gen_DBType = "SQL" Then
+   RsMst_Vendor.CursorLocation = adUseClient
+End If
+RsMst_Vendor.Open sql, cn, adOpenKeyset, adLockOptimistic
+
+End Function
+
+
+
+
+
+Function TableMst_ServiceTax(Optional wc As String)
+sql = "Select * from Mst_ServiceTax " & wc
+Set RsMst_ServiceTax = New ADODB.Recordset
+RsMst_ServiceTax.CursorLocation = adUseClient
+Call DBC
+If Gen_DBType = "SQL" Then
+   RsMst_ServiceTax.CursorLocation = adUseClient
+End If
+RsMst_ServiceTax.Open sql, cn, adOpenKeyset, adLockOptimistic
+
+End Function
+
+
+
+Function TableMst_TDS(Optional wc As String)
+sql = "Select * from Mst_TDS " & wc
+Set RsMst_TDS = New ADODB.Recordset
+RsMst_TDS.CursorLocation = adUseClient
+Call DBC
+If Gen_DBType = "SQL" Then
+   RsMst_TDS.CursorLocation = adUseClient
+End If
+RsMst_TDS.Open sql, cn, adOpenKeyset, adLockOptimistic
+End Function
+
+
+
+---Code for Module ControlBind
+Public Function GetTDSDescription(CID_ As Variant) As String
+Dim RetVal As String
+RetVal = 0
+Call TableMst_TDS(" Where TDSID = " & CID_)
+If Not RsMst_TDS.EOF Then
+   RetVal = RsMst_TDS!Description
+End If
+GetTDSDescription = RetVal
+End Function
+
+
+Public Function GetServiceTaxDescription(CID_ As Variant) As String
+Dim RetVal As String
+RetVal = 0
+Call TableMst_ServiceTax(" Where ServiceTaxID = " & CID_)
+If Not RsMst_ServiceTax.EOF Then
+   RetVal = RsMst_ServiceTax!Description
+End If
+GetServiceTaxDescription = RetVal
+End Function
+
+
+
+

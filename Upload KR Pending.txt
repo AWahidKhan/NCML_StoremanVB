@@ -1,0 +1,19 @@
+-----------------------In NovelVersion-----------------------------
+
+
+Public Function Version10()
+
+Dim TextType, c As Variant
+If Gen_DBType = "MDB" Then
+   TextType = "Text"
+   c = "COLUMN"
+Else
+   TextType = "Varchar"
+   c = ""
+End If
+tmp = "alter table Mst_GSL add " & c & " KRDate datetime"
+Call TmpTable
+
+UpdateConfig ("10")
+MsgBox "Version 10 Installed successfully"
+End Function

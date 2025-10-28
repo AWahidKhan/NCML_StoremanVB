@@ -1,0 +1,24 @@
+# Ignore compiled binaries
+*.exe
+*.dll
+*.ocx
+*.tlb
+*.obj
+*.pdb
+*.res
+*.log
+*.vbx
+
+# Ignore temporary VB6 files
+*.vbw
+
+# Ignore temporary files
+*.tmp
+
+# Ignore excel and csv files
+*.xls
+*.csv
+*.rar
+*.jpg
+*.pdf
+*.png
