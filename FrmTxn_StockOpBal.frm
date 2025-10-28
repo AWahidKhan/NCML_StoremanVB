@@ -805,6 +805,9 @@ If ChkBOD = False Then
    Exit Sub
 End If
 
+'2025-10-15
+Call InsertProcessLocation
+
 
 If LCase(Gen_UserRole) <> "power" And LCase(Gen_UserRole) <> "admin" And LCase(Gen_UserRole) <> "superadmin" And LCase(Gen_UserRole) <> "headcmg" Then
    If mShowDTD = False Then
@@ -2037,3 +2040,57 @@ oWB.Save
 MsgBox ("Excel file created !!! ")
 oXL.Visible = True
 End Sub
+
+Private Function InsertProcessLocation() As Boolean
+Dim Retval As Boolean
+Retval = True
+
+
+'tmp = "Select ML.LocationName ,Min(MC.CurrentDate) 'BOD'"
+'tmp = tmp & " From Mst_CMP MC Inner Join Mst_Location ML On MC.LocationID = ML.LocationID"
+'tmp = tmp & " Inner Join Mst_State MS On MS.StateID = ML.StateID"
+'tmp = tmp & " And MC.Closedate is null"
+'tmp = tmp & " Group By ML.LocationName"
+
+tmp = "Select ML.LocationID, Min(MC.CurrentDate) 'BOD'"
+tmp = tmp & " From Mst_CMP MC Inner Join Mst_Location ML On MC.LocationID = ML.LocationID"
+tmp = tmp & " Inner Join Mst_State MS On MS.StateID = ML.StateID"
+'tmp = tmp & " Where MC.CloseDate Is Null "
+
+'If Gen_DBType = "MDB" Then
+'   tmp = tmp & " Where MC.CurrentDate >= #" & Format(mToDate, Gen_DatFormat) & "# "
+'Else
+'   tmp = tmp & " Where MC.CurrentDate >= '" & Format(mToDate, Gen_DatFormat) & "' "
+'End If
+
+'tmp = tmp & " Where MC.Closedate is null "
+tmp = tmp & " Where ML." & mGenInvoiceLocation
+tmp = tmp & " Group By ML.LocationID"
+tmp = tmp & " Order by ML.LocationID"
+
+Call TmpTable
+
+If TmpRs.RecordCount > 0 Then
+   
+   For I = 1 To TmpRs.RecordCount
+               
+            tmp = " Insert into Txn_JobQueueStockOpeningBalance "
+            tmp = tmp & " (MonthYear,LocationID,BOD,JobStatus, Concurrency,G_UID,CreatedBy,CreatedDate )"
+            tmp = tmp & " Values ('" & mFromDate & "','" & TmpRs!LocationID & "', '" & TmpRs!BOD & "','P','" & Now() & "', newid(), '" & Gen_UserLoginID & "','" & Now() & "')"
+            
+            Call Tmp1Table
+            TmpRs.MoveNext
+        
+        Next
+   
+End If
+End Function
+
+Public Function Nz(Value As Variant, Optional DefaultValue As Variant = 0) As Variant
+    If IsNull(Value) Or IsEmpty(Value) Then
+        Nz = DefaultValue
+    Else
+        Nz = Value
+    End If
+End Function
+
