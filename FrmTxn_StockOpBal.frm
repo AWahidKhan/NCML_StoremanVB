@@ -1610,6 +1610,32 @@ For I = 1 To TmpRs.RecordCount
     TmpRs.MoveNext
 Next
 
+
+'2025-10-15
+
+If Gen_DBType = "MDB" Then
+   tmp = " Select Distinct LocationID From Txn_JobQueueStockOpeningBalance Where MonthYear = #" & mFromDate & "#"
+Else
+   tmp = " Select Distinct LocationID From Txn_JobQueueStockOpeningBalance Where MonthYear = '" & mFromDate & "'"
+End If
+
+Call TmpTable
+
+For I = 1 To TmpRs.RecordCount
+    If mProcessedLocation = "" Then
+       mProcessedLocation = "(" & "'" & TmpRs!LocationID & "'"
+    Else
+       mProcessedLocation = mProcessedLocation & "," & "'" & TmpRs!LocationID & "'"
+    End If
+    
+    If I = TmpRs.RecordCount Then
+       mProcessedLocation = mProcessedLocation & ")"
+    End If
+    TmpRs.MoveNext
+Next
+
+
+
 'Commented on 15 March 2011 744 PM Parag
 'tmp = "Select Distinct ML.LocationName,ML.SM_Prefix  "
 'tmp = tmp & " From Mst_Location ML "
@@ -1631,6 +1657,18 @@ tmp = tmp & " Left Join Mst_GSL MG On MC.CMPID = MG.CMPID "
 If mChooseLocation <> "" Then
    tmp = tmp & " Where ML.SM_Prefix not in " & mChooseLocation & ""
 End If
+
+
+'2025-10-15
+
+If mProcessedLocation <> "" Then
+   If mChooseLocation = "" Then
+      tmp = tmp & " Where ML.LocationID not in " & mProcessedLocation & ""
+   Else
+      tmp = tmp & " and ML.LocationID not in " & mProcessedLocation & ""
+   End If
+End If
+
 
 If Gen_WcLocation <> "" Then
    If mChooseLocation = "" Then
