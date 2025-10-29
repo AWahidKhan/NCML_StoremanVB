@@ -805,6 +805,9 @@ If ChkBOD = False Then
    Exit Sub
 End If
 
+'2025-10-15
+Call InsertProcessLocation
+
 
 If LCase(Gen_UserRole) <> "power" And LCase(Gen_UserRole) <> "admin" And LCase(Gen_UserRole) <> "superadmin" And LCase(Gen_UserRole) <> "headcmg" Then
    If mShowDTD = False Then
@@ -876,24 +879,88 @@ Call TmpTable
        Call TableTxn_TempGSL(" Where SM_Prefix = '" & TmpRs!SM_Prefix & "'")
        
       
-       If RsTxn_TempGSL.RecordCount > 0 Then
-          For j = 1 To TmpRs1.RecordCount
-              If RsTxn_TempGSL.RecordCount > 0 Then
-                 RsTxn_TempGSL.MoveFirst
-              End If
-              
-              RsTxn_TempGSL.Find "Mst_GSL_ID=" & TmpRs1!Mst_GSL_ID
-              If Not RsTxn_TempGSL.EOF Then
-                 RsTxn_TempGSL!BalanceBags = RsTxn_TempGSL!BalanceBags + TmpRs1!NoofBags
-                 RsTxn_TempGSL!BalanceWeight = RsTxn_TempGSL!BalanceWeight + TmpRs1!DematWeight
-                 RsTxn_TempGSL!CDTFBags = RsTxn_TempGSL!CDTFBags - TmpRs1!NoofBags
-                 RsTxn_TempGSL!CDTFWeight = RsTxn_TempGSL!CDTFWeight - TmpRs1!DematWeight
-                 RsTxn_TempGSL!Status = "O"
-                 RsTxn_TempGSL.Update
-              End If
-           TmpRs1.MoveNext
-          Next
-       End If
+         'Code optimization - 1 (2025-10-23) - Start
+      
+'       If RsTxn_TempGSL.RecordCount > 0 Then
+'          For j = 1 To TmpRs1.RecordCount
+'              If RsTxn_TempGSL.RecordCount > 0 Then
+'                 RsTxn_TempGSL.MoveFirst
+'              End If
+'
+'              RsTxn_TempGSL.Find "Mst_GSL_ID=" & TmpRs1!Mst_GSL_ID
+'              If Not RsTxn_TempGSL.EOF Then
+'                 RsTxn_TempGSL!BalanceBags = RsTxn_TempGSL!BalanceBags + TmpRs1!NoofBags
+'                 RsTxn_TempGSL!BalanceWeight = RsTxn_TempGSL!BalanceWeight + TmpRs1!DematWeight
+'                 RsTxn_TempGSL!CDTFBags = RsTxn_TempGSL!CDTFBags - TmpRs1!NoofBags
+'                 RsTxn_TempGSL!CDTFWeight = RsTxn_TempGSL!CDTFWeight - TmpRs1!DematWeight
+'                 RsTxn_TempGSL!Status = "O"
+'                 RsTxn_TempGSL.Update
+'              End If
+'           TmpRs1.MoveNext
+'          Next
+'       End If
+
+
+
+        Dim dict As Object
+        Set dict = CreateObject("Scripting.Dictionary")
+        
+        Dim key As Long
+        
+        '--- Step 1: Load RsTxn_TempGSL data into Dictionary
+        If RsTxn_TempGSL.RecordCount > 0 Then
+            RsTxn_TempGSL.MoveFirst
+            Do Until RsTxn_TempGSL.EOF
+                key = RsTxn_TempGSL!Mst_GSL_ID
+                'Store reference to recordset row data in dictionary
+                dict(key) = Array( _
+                    RsTxn_TempGSL!BalanceBags, _
+                    RsTxn_TempGSL!BalanceWeight, _
+                    RsTxn_TempGSL!CDTFBags, _
+                    RsTxn_TempGSL!CDTFWeight, _
+                    RsTxn_TempGSL.AbsolutePosition _
+                )
+                RsTxn_TempGSL.MoveNext
+            Loop
+        End If
+        
+        'MsgBox "Total items in dictionary: " & dict.Count
+        
+        '--- Step 2: Loop through TmpRs1 and update matching records in RsTxn_TempGSL
+        If TmpRs1.RecordCount > 0 Then
+            TmpRs1.MoveFirst
+            Do Until TmpRs1.EOF
+                key = TmpRs1!Mst_GSL_ID
+                
+                If dict.Exists(key) Then
+                    'Retrieve array data
+                    Dim data As Variant
+                    data = dict(key)
+                    
+                    'Move RsTxn_TempGSL to stored record position
+                    RsTxn_TempGSL.AbsolutePosition = data(4)
+                    
+                    'Update fields directly
+                    RsTxn_TempGSL!BalanceBags = Nz(data(0)) + Nz(TmpRs1!NoofBags)
+                    RsTxn_TempGSL!BalanceWeight = Nz(data(1)) + Nz(TmpRs1!DematWeight)
+                    RsTxn_TempGSL!CDTFBags = Nz(data(2)) - Nz(TmpRs1!NoofBags)
+                    RsTxn_TempGSL!CDTFWeight = Nz(data(3)) - Nz(TmpRs1!DematWeight)
+                    RsTxn_TempGSL!Status = "O"
+                    RsTxn_TempGSL.Update
+                End If
+                
+                TmpRs1.MoveNext
+            Loop
+        End If
+
+       
+       
+       
+       
+       
+       
+       
+       'Code optimization - 1 (2025-10-23) - End
        
        
        '--------Added to add Opening balance of Full Withdrawal GSLs for Reservation with 'P' TFlag
@@ -913,24 +980,82 @@ Call TmpTable
              
        Call TableTxn_TempGSL(" Where SM_Prefix = '" & TmpRs!SM_Prefix & "'")
        
-       If RsTxn_TempGSL.RecordCount > 0 Then
-          For j = 1 To TmpRs1.RecordCount
-              If RsTxn_TempGSL.RecordCount > 0 Then
-                 RsTxn_TempGSL.MoveFirst
-              End If
-              
-              RsTxn_TempGSL.Find "Mst_GSL_ID=" & TmpRs1!Mst_GSL_ID
-              If Not RsTxn_TempGSL.EOF Then
-                 RsTxn_TempGSL!BalanceBags = RsTxn_TempGSL!BalanceBags + TmpRs1!NoofBags
-                 RsTxn_TempGSL!BalanceWeight = RsTxn_TempGSL!BalanceWeight + TmpRs1!DematWeight
-                 RsTxn_TempGSL!CDTFBags = RsTxn_TempGSL!CDTFBags - TmpRs1!NoofBags
-                 RsTxn_TempGSL!CDTFWeight = RsTxn_TempGSL!CDTFWeight - TmpRs1!DematWeight
-                 RsTxn_TempGSL!Status = "P"
-                 RsTxn_TempGSL.Update
-              End If
-           TmpRs1.MoveNext
-          Next
-       End If
+       'Code optimization - 1 (2025-10-23) - Start
+       
+'       If RsTxn_TempGSL.RecordCount > 0 Then
+'          For j = 1 To TmpRs1.RecordCount
+'              If RsTxn_TempGSL.RecordCount > 0 Then
+'                 RsTxn_TempGSL.MoveFirst
+'              End If
+'
+'              RsTxn_TempGSL.Find "Mst_GSL_ID=" & TmpRs1!Mst_GSL_ID
+'              If Not RsTxn_TempGSL.EOF Then
+'                 RsTxn_TempGSL!BalanceBags = RsTxn_TempGSL!BalanceBags + TmpRs1!NoofBags
+'                 RsTxn_TempGSL!BalanceWeight = RsTxn_TempGSL!BalanceWeight + TmpRs1!DematWeight
+'                 RsTxn_TempGSL!CDTFBags = RsTxn_TempGSL!CDTFBags - TmpRs1!NoofBags
+'                 RsTxn_TempGSL!CDTFWeight = RsTxn_TempGSL!CDTFWeight - TmpRs1!DematWeight
+'                 RsTxn_TempGSL!Status = "P"
+'                 RsTxn_TempGSL.Update
+'              End If
+'           TmpRs1.MoveNext
+'          Next
+'       End If
+
+
+
+
+        'Dim dict As Object
+        Set dict = CreateObject("Scripting.Dictionary")
+        
+        'Dim key As Long
+        
+        '--- Step 1: Load RsTxn_TempGSL data into Dictionary
+        If RsTxn_TempGSL.RecordCount > 0 Then
+            RsTxn_TempGSL.MoveFirst
+            Do Until RsTxn_TempGSL.EOF
+                key = RsTxn_TempGSL!Mst_GSL_ID
+                'Store reference to recordset row data in dictionary
+                dict(key) = Array( _
+                    RsTxn_TempGSL!BalanceBags, _
+                    RsTxn_TempGSL!BalanceWeight, _
+                    RsTxn_TempGSL!CDTFBags, _
+                    RsTxn_TempGSL!CDTFWeight, _
+                    RsTxn_TempGSL.AbsolutePosition _
+                )
+                RsTxn_TempGSL.MoveNext
+            Loop
+        End If
+        
+        '--- Step 2: Loop through TmpRs1 and update matching records in RsTxn_TempGSL
+        If TmpRs1.RecordCount > 0 Then
+            TmpRs1.MoveFirst
+            Do Until TmpRs1.EOF
+                key = TmpRs1!Mst_GSL_ID
+                
+                If dict.Exists(key) Then
+                    'Retrieve array data
+                    'Dim data As Variant
+                    data = dict(key)
+                    
+                    'Move RsTxn_TempGSL to stored record position
+                    RsTxn_TempGSL.AbsolutePosition = data(4)
+                    
+                    'Update fields directly
+                    RsTxn_TempGSL!BalanceBags = Nz(data(0)) + Nz(TmpRs1!NoofBags)
+                    RsTxn_TempGSL!BalanceWeight = Nz(data(1)) + Nz(TmpRs1!DematWeight)
+                    RsTxn_TempGSL!CDTFBags = Nz(data(2)) - Nz(TmpRs1!NoofBags)
+                    RsTxn_TempGSL!CDTFWeight = Nz(data(3)) - Nz(TmpRs1!DematWeight)
+                    RsTxn_TempGSL!Status = "P"
+                    RsTxn_TempGSL.Update
+                End If
+                
+                TmpRs1.MoveNext
+            Loop
+        End If
+       
+       'Code optimization - 1 (2025-10-23) - End
+       
+       
        
        TmpRs.MoveNext
        ProgressBar1.Value = ProgressBar1.Value + 1
@@ -2037,3 +2162,57 @@ oWB.Save
 MsgBox ("Excel file created !!! ")
 oXL.Visible = True
 End Sub
+
+Private Function InsertProcessLocation() As Boolean
+Dim Retval As Boolean
+Retval = True
+
+
+'tmp = "Select ML.LocationName ,Min(MC.CurrentDate) 'BOD'"
+'tmp = tmp & " From Mst_CMP MC Inner Join Mst_Location ML On MC.LocationID = ML.LocationID"
+'tmp = tmp & " Inner Join Mst_State MS On MS.StateID = ML.StateID"
+'tmp = tmp & " And MC.Closedate is null"
+'tmp = tmp & " Group By ML.LocationName"
+
+tmp = "Select ML.LocationID, Min(MC.CurrentDate) 'BOD'"
+tmp = tmp & " From Mst_CMP MC Inner Join Mst_Location ML On MC.LocationID = ML.LocationID"
+tmp = tmp & " Inner Join Mst_State MS On MS.StateID = ML.StateID"
+'tmp = tmp & " Where MC.CloseDate Is Null "
+
+'If Gen_DBType = "MDB" Then
+'   tmp = tmp & " Where MC.CurrentDate >= #" & Format(mToDate, Gen_DatFormat) & "# "
+'Else
+'   tmp = tmp & " Where MC.CurrentDate >= '" & Format(mToDate, Gen_DatFormat) & "' "
+'End If
+
+'tmp = tmp & " Where MC.Closedate is null "
+tmp = tmp & " Where ML." & mGenInvoiceLocation
+tmp = tmp & " Group By ML.LocationID"
+tmp = tmp & " Order by ML.LocationID"
+
+Call TmpTable
+
+If TmpRs.RecordCount > 0 Then
+   
+   For I = 1 To TmpRs.RecordCount
+               
+            tmp = " Insert into Txn_JobQueueStockOpeningBalance "
+            tmp = tmp & " (MonthYear,LocationID,BOD,JobStatus, Concurrency,G_UID,CreatedBy,CreatedDate )"
+            tmp = tmp & " Values ('" & mFromDate & "','" & TmpRs!LocationID & "', '" & TmpRs!BOD & "','P','" & Now() & "', newid(), '" & Gen_UserLoginID & "','" & Now() & "')"
+            
+            Call Tmp1Table
+            TmpRs.MoveNext
+        
+        Next
+   
+End If
+End Function
+
+Public Function Nz(Value As Variant, Optional DefaultValue As Variant = 0) As Variant
+    If IsNull(Value) Or IsEmpty(Value) Then
+        Nz = DefaultValue
+    Else
+        Nz = Value
+    End If
+End Function
+
