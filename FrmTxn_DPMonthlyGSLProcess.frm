@@ -6477,21 +6477,23 @@ Call Tmp4Table
 
 If TmpRs1.RecordCount > 0 Then
    For pqr = 1 To TmpRs1.RecordCount
-      TmpRs4.MoveFirst
-      TmpRs4.Filter = "Mst_GSL_ID = " & Val(TmpRs1!Mst_GSL_ID)
-'      If TmpRs1.RecordCount > 0 Then
-''         TmpRs4!InvoiceAmtForFranch = Val(TmpRs4!InvoiceAmtForFranch) + (IIf(IsNull(TmpRs1!Amount), 0, TmpRs1!Amount) / TmpRs1.RecordCount)
-''         TmpRs4.Update
-'      End If
-      
-      For Ilk = 1 To TmpRs4.RecordCount
-          TmpRs4!InvoiceAmtForFranch = Val(TmpRs4!InvoiceAmtForFranch) + (IIf(IsNull(TmpRs1!Amount), 0, TmpRs1!Amount) / TmpRs4.RecordCount)  'IIf(IsNull(TmpRs1!IncomeAmt), 0, Format(TmpRs1!IncomeAmt * Val(MSHFlexGrid1.TextMatrix(i, E.GodownCapacity)) / TmpRs2!Capacity, "#############.00"))
-          TmpRs4.Update
-          TmpRs4.MoveNext
-      Next
-      
-      TmpRs4.Filter = ""
-      TmpRs1.MoveNext
+    If TmpRs4.RecordCount > 0 Then
+          TmpRs4.MoveFirst
+          TmpRs4.Filter = "Mst_GSL_ID = " & Val(TmpRs1!Mst_GSL_ID)
+    '      If TmpRs1.RecordCount > 0 Then
+    ''         TmpRs4!InvoiceAmtForFranch = Val(TmpRs4!InvoiceAmtForFranch) + (IIf(IsNull(TmpRs1!Amount), 0, TmpRs1!Amount) / TmpRs1.RecordCount)
+    ''         TmpRs4.Update
+    '      End If
+          
+          For Ilk = 1 To TmpRs4.RecordCount
+              TmpRs4!InvoiceAmtForFranch = Val(TmpRs4!InvoiceAmtForFranch) + (IIf(IsNull(TmpRs1!Amount), 0, TmpRs1!Amount) / TmpRs4.RecordCount)  'IIf(IsNull(TmpRs1!IncomeAmt), 0, Format(TmpRs1!IncomeAmt * Val(MSHFlexGrid1.TextMatrix(i, E.GodownCapacity)) / TmpRs2!Capacity, "#############.00"))
+              TmpRs4.Update
+              TmpRs4.MoveNext
+          Next
+          
+          TmpRs4.Filter = ""
+      End If
+    TmpRs1.MoveNext
    Next
 End If
 
