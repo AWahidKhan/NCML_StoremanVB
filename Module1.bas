@@ -164,19 +164,19 @@ Set cn = New ADODB.Connection
 If Gen_DbPath = "" Then
    'Gen_DbPath = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=sa;pwd=Abcd123$;Initial Catalog=StoreManVB;Data Source=10.20.20.15" 'GetPath()
    'Gen_DbPath = "Provider=MSOLEDBSQL;Persist Security Info=False;User ID=appuser;pwd=$QL@#$%67890;Initial Catalog=Storemandb;Data Source=10.23.12.49,15333" 'GetPath()
-   Gen_DbPath = "Provider=MSOLEDBSQL;Persist Security Info=False;User ID=appuser;pwd=Cy37e$84t#ji6r;Initial Catalog=SM_20251024;Data Source=10.23.12.51,1433"
+   Gen_DbPath = "Provider=MSOLEDBSQL;Persist Security Info=False;User ID=appuser;pwd=Cy37e$84t#ji6r;Initial Catalog=SM_20251210;Data Source=10.23.12.51,1433"
    'Gen_DbPath = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=storemanuatuser;pwd=StoreManUATDB@123$%;Initial Catalog=StoreMan_UAT_GSLInvoice;Data Source=ncmluatdbserver.database.windows.net"
    
 End If
 
 If LCase(Gen_DbPathFromAzure) = "y" Then
    'Gen_DbPath = "Provider=MSOLEDBSQL;Persist Security Info=False;User ID=appuser;pwd=$QL@#$%67890;Initial Catalog=Storemandb;Data Source=10.23.12.49,15333"
-   Gen_DbPath = "Provider=MSOLEDBSQL;Persist Security Info=False;User ID=appuser;pwd=Cy37e$84t#ji6r;Initial Catalog=SM_20251024;Data Source=10.23.12.51,1433"
+   Gen_DbPath = "Provider=MSOLEDBSQL;Persist Security Info=False;User ID=appuser;pwd=Cy37e$84t#ji6r;Initial Catalog=SM_20251210;Data Source=10.23.12.51,1433"
    'GetPath()
    'Gen_DbPath = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=storemanuatuser;pwd=StoreManUATDB@123$%;Initial Catalog=StoreMan_UAT_GSLInvoice;Data Source=ncmluatdbserver.database.windows.net"
 Else
    'Gen_DbPath = "Provider=MSOLEDBSQL;Persist Security Info=False;User ID=appuser;pwd=$QL@#$%67890;Initial Catalog=Storemandb;Data Source=10.23.12.49,15333" 'GetPath()
-   Gen_DbPath = "Provider=MSOLEDBSQL;Persist Security Info=False;User ID=appuser;pwd=Cy37e$84t#ji6r;Initial Catalog=SM_20251024;Data Source=10.23.12.51,1433"
+   Gen_DbPath = "Provider=MSOLEDBSQL;Persist Security Info=False;User ID=appuser;pwd=Cy37e$84t#ji6r;Initial Catalog=SM_20251210;Data Source=10.23.12.51,1433"
    'Gen_DbPath = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=storemanuatuser;pwd=StoreManUATDB@123$%;Initial Catalog=StoreMan_UAT_GSLInvoice;Data Source=ncmluatdbserver.database.windows.net"
    'Gen_DbPath = "Provider=SQLOLEDB.1;Persist Security Info=False;User ID=sa;pwd=s@ral52#91dB;Initial Catalog=Store-Man;Data Source=10.20.20.6" 'GetPath()
 End If

@@ -2053,6 +2053,9 @@ Call DBC
 If Gen_DBType = "SQL" Then
    RsTxn_ProInvoice.CursorLocation = adUseClient
 End If
+
+RsTxn_ProInvoice.Properties("Update Criteria") = adCriteriaKey
+
 RsTxn_ProInvoice.Open sql, cn, adOpenKeyset, adLockOptimistic
 End Function
 

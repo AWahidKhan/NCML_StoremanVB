@@ -242,7 +242,7 @@ Begin VB.Form FrmTxn_NNNRInvConfirmation
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         Format          =   123666433
+         Format          =   132382721
          CurrentDate     =   39884
       End
       Begin MSComCtl2.DTPicker TxtToDate 
@@ -263,7 +263,7 @@ Begin VB.Form FrmTxn_NNNRInvConfirmation
             Italic          =   0   'False
             Strikethrough   =   0   'False
          EndProperty
-         Format          =   123666433
+         Format          =   132382721
          CurrentDate     =   39884
       End
       Begin VB.Label Label6 
@@ -1088,6 +1088,9 @@ If TmpRs.RecordCount > 0 Then
           End If
           
           MSHFlexGrid1.TextMatrix(I, 16) = GetADhocInvoiceAmount(TmpRs!LocationID, TmpRs!ClientID, I)
+            If IsDiscountAppliedInDC(TmpRs!InvoiceNo) > 0 Then
+                MSHFlexGrid1.TextMatrix(I, 8) = MSHFlexGrid1.TextMatrix(I, 7)
+            End If
           
           If Val(MSHFlexGrid1.TextMatrix(I, 16)) > 0 Then
              For C = 0 To MSHFlexGrid1.Cols - 1
@@ -1379,4 +1382,25 @@ For I = 1 To MSHFlexGrid1.Rows - 2
     End If
 Next
 CheckRemarks = Retval
+End Function
+
+Private Function IsDiscountAppliedInDC(mInvoiceNo As Double)
+Dim Retval As Variant
+Retval = 0
+
+tmp = "select distinct b.PINo, e.DepConID from Txn_ProInvoice a"
+tmp = tmp & " inner join Txn_InvMonGSLDetail b on a.InvoiceNo = b.PINo"
+tmp = tmp & " inner join Mst_GSL c on b.Mst_GSL_ID = c.Mst_GSL_ID"
+tmp = tmp & " inner join Txn_DepositContractGodownDetail d on c.DepConDID = d.DepConDID"
+tmp = tmp & " inner join Txn_DepositContract e on d.DepConID = e.DepConID"
+tmp = tmp & " Where a.InvoiceNo = " & mInvoiceNo & " And IsNull(E.DiscountApplied, 0) = 1"
+
+Call Tmp1Table
+
+If TmpRs1.RecordCount > 0 Then
+   Retval = TmpRs1.RecordCount
+End If
+
+IsDiscountAppliedInDC = Retval
+
 End Function
